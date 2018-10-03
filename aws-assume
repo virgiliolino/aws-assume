@@ -3,15 +3,15 @@ function getProfileKeyValue() {
     PROFILE=$1
     SEARCHED_KEY=$2
     cat ~/.aws/config | while read key value; do
-	if [[ $key == "[profile" && $value == "$PROFILE]" ]]; then
+	      if [[ $key == "[profile" && $value == "$PROFILE]" ]]; then
             while read key value; do
-		if [[ $key == "$SEARCHED_KEY" ]]; then
-		    echo ${value:2}
-		    return 0
-		fi 
-	    done  
-	fi
-	#we are here it means we didnt find in the config the requested ARN
+		            if [[ $key == "$SEARCHED_KEY" ]]; then
+		                echo ${value:2}
+		                return 0
+		            fi 
+	          done  
+	      fi
+	      #we are here it means we didnt find in the config the requested ARN
     done
 }
 
