@@ -1,0 +1,41 @@
+#!/bin/bash
+function getProfileKeyValue() {
+    PROFILE=$1
+    SEARCHED_KEY=$2
+    cat ~/.aws/config | while read key value; do
+	if [[ $key == "[profile" && $value == "$PROFILE]" ]]; then
+            while read key value; do
+		if [[ $key == "$SEARCHED_KEY" ]]; then
+		    echo ${value:2}
+		    return 0
+		fi 
+	    done  
+	fi
+	#we are here it means we didnt find in the config the requested ARN
+    done
+}
+
+function exportTokens() {
+    PAYLOAD=$1
+    export AWS_SECRET_ACCESS_KEY=`echo $PAYLOAD | jq -r '.Credentials.SecretAccessKey'`
+    export AWS_SESSION_TOKEN=`echo $PAYLOAD | jq -r '.Credentials.SessionToken'`
+    export AWS_ACCESS_KEY_ID=`echo $PAYLOAD | jq -r '.Credentials.AccessKeyId'`
+}
+
+ARN="$(getProfileKeyValue $1 role_arn)"
+MFA="$(getProfileKeyValue $1 mfa_serial)"
+echo "Assuming role for profile $1";
+#sts get-session-token must be executed without any previous issued env token
+unset AWS_SECRETY_ACCESS_KEY
+unset AWS_SESSION_TOKEN
+unset AWS_ACCESS_KEY_ID
+#prompt for multi factor authentication code
+read -p "Enter MFA Code: " mfa 
+#request the token with main IAM
+OUTPUT="$(aws sts get-session-token --serial-number $MFA --token-code $mfa)"
+exportTokens "$OUTPUT"
+echo 'Environment variables AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN and AWS_ACCESS_KEY_ID exported'
+#from main IAM now we can assume the requested role
+ROLESTRING="aws sts assume-role --role-arn "$ARN" --role-session-name session"
+ROLEOUTPUT=`$ROLESTRING`
+exportTokens "$ROLEOUTPUT"
