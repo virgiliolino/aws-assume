@@ -1,4 +1,4 @@
-sudo curl -L "https://github.com/aws-assume/aws-assume" -o /usr/local/bin/aws-assume
+sudo curl -L "https://raw.githubusercontent.com/virgiliolino/aws-assume/master/aws-assume" -o /usr/local/bin/aws-assume
 
 sudo chmod +x /usr/local/bin/aws-assume
 
