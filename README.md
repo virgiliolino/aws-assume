@@ -32,8 +32,8 @@ aws configure
 ```
 
 ## Usage
-aws-assume other-profile-name
-
+. aws-assume other-profile-name
+*please notice the . you need to explicitely write .<SPC>aws-assume because you need to source the result of the execution.*
 ## Todo
 
 Currently I'm hardcoding one behaviour that could be easily dessumable from the config structure.
